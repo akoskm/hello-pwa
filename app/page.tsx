@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
 import Image from "next/image";
-import {useEffect} from "react";
+import { useEffect } from "react";
 
 export default function Home() {
-
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
+      const workerScript =
+        process.env.NODE_ENV === "development"
+          ? "service-worker-dev.js"
+          : "service-worker.js";
       navigator.serviceWorker
-        .register('/service-worker.js')
-        .then((registration) => console.log('scope is: ', registration.scope));
+        .register(workerScript, { type: "module" })
+        .then((registration) => console.log("scope is: ", registration.scope));
     }
   }, []);
 
