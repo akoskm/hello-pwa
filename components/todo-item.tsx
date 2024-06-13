@@ -1,10 +1,5 @@
+import type { Todo } from "@/types";
 import { ChangeEvent, useState } from "react";
-
-export interface Todo {
-  id: number;
-  text: string;
-  isCompleted: boolean;
-}
 
 interface TodoItemProps {
   todo: Todo;
