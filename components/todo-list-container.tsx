@@ -5,9 +5,9 @@ import { TODO_KEY } from "@/constants";
 
 export function TodoListContainer() {
   const initialTodos = [
-    { id: 1, text: "Todo 1", isCompleted: false },
-    { id: 2, text: "Todo 2", isCompleted: false },
-    { id: 3, text: "Todo 3", isCompleted: false },
+    { id: 1, description: "Todo 1", is_completed: false },
+    { id: 2, description: "Todo 2", is_completed: false },
+    { id: 3, description: "Todo 3", is_completed: false },
   ];
   const [todos, setTodos] = useState<Array<Todo>>([]);
 

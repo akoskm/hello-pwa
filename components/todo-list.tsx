@@ -17,11 +17,11 @@ export function TodoList({ todos, setTodos }: TodoListProps) {
     localStorage.setItem(TODO_KEY, JSON.stringify(updatedTodos));
   };
 
-  const addTodo = (text: string) => {
+  const addTodo = (description: string) => {
     const newTodo: Todo = {
       id: Date.now(), // Using the current timestamp as a simple unique ID
-      text: text,
-      isCompleted: false,
+      description,
+      is_completed: false,
     };
     const updatedTodos = [...todos, newTodo];
     setTodos(updatedTodos);

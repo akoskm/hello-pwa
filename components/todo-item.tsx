@@ -7,17 +7,17 @@ interface TodoItemProps {
 }
 
 export const TodoItem = ({ todo, updateTodo }: TodoItemProps) => {
-  const [text, setText] = useState(todo.text);
+  const [description, setDescription] = useState(todo.description);
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
+  const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDescription(e.target.value);
   };
 
   const handleCheckboxChange = () => {
     updateTodo({
       ...todo,
-      isCompleted: !todo.isCompleted,
+      is_completed: !todo.is_completed,
     });
   };
 
@@ -28,13 +28,13 @@ export const TodoItem = ({ todo, updateTodo }: TodoItemProps) => {
   const handleSave = () => {
     updateTodo({
       ...todo,
-      text,
+      description: description,
     });
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setText(todo.text);
+    setDescription(todo.description);
     setIsEditing(false);
   };
 
@@ -43,7 +43,7 @@ export const TodoItem = ({ todo, updateTodo }: TodoItemProps) => {
       <input
         type="checkbox"
         className="checkbox"
-        checked={todo.isCompleted}
+        checked={todo.is_completed}
         onChange={handleCheckboxChange}
         disabled={isEditing}
       />
@@ -51,11 +51,11 @@ export const TodoItem = ({ todo, updateTodo }: TodoItemProps) => {
       {isEditing ? (
         <div className="join">
           <input
-            type="text"
+            type="description"
             placeholder="Type here"
             className="input input-bordered w-full max-w-xs join-item"
-            value={text}
-            onChange={handleTextChange}
+            value={description}
+            onChange={handleDescriptionChange}
             onClick={(e) => {
               e.stopPropagation();
               handleEdit();
@@ -70,7 +70,7 @@ export const TodoItem = ({ todo, updateTodo }: TodoItemProps) => {
         </div>
       ) : (
         <span onClick={handleEdit} className="text-lg">
-          {todo.text}
+          {todo.description}
         </span>
       )}
     </div>
