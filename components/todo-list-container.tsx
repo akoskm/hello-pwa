@@ -1,26 +1,38 @@
 import { useEffect, useState } from "react";
 import { TodoList } from "./todo-list";
 import type { Todo } from "@/types";
-import { TODO_KEY } from "@/constants";
+import { fetchTodos } from "@/fetchTodos";
+import { syncTodos } from "@/syncTodos";
 
 export function TodoListContainer() {
-  const initialTodos = [
-    { id: 1, description: "Todo 1", is_completed: false },
-    { id: 2, description: "Todo 2", is_completed: false },
-    { id: 3, description: "Todo 3", is_completed: false },
-  ];
   const [todos, setTodos] = useState<Array<Todo>>([]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedTodos = localStorage.getItem(TODO_KEY);
-      if (savedTodos) {
-        setTodos(JSON.parse(savedTodos));
-      } else {
-        setTodos(initialTodos);
+    fetchTodos(setTodos);
+
+    const onMessage = async (event: { data: { type: string } }) => {
+      if (event.data && event.data.type === "START_SYNC") {
+        console.log("started sync");
+        await syncTodos();
+        await fetchTodos(setTodos);
       }
+    };
+
+    if ("serviceWorker" in navigator) {
+      const workerScript =
+        process.env.NODE_ENV === "development"
+          ? "service-worker-dev.js"
+          : "service-worker.js";
+      navigator.serviceWorker
+        .register(workerScript, { type: "module" })
+        .then((registration) => console.log("scope is: ", registration.scope));
+
+      navigator.serviceWorker.addEventListener("message", onMessage);
     }
-  }, []);
+    return () => {
+      navigator.serviceWorker.removeEventListener("message", onMessage);
+    };
+  }, [setTodos]);
 
   return (
     <div className="flex flex-col gap-4">

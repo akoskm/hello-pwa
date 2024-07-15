@@ -5,35 +5,62 @@ import { TODO_KEY } from "@/constants";
 
 interface TodoListProps {
   todos: Array<Todo>;
-  setTodos: (todos: Array<Todo>) => void;
+  setTodos: (
+    todos: Array<Todo> | ((todos: Array<Todo>) => Array<Todo>),
+  ) => void;
 }
 
 export function TodoList({ todos, setTodos }: TodoListProps) {
-  const updateTodo = (updatedTodo: Todo) => {
-    const updatedTodos = todos.map((todo) =>
-      updatedTodo.id === todo.id ? updatedTodo : todo,
+  async function attemptSync() {
+    const registration = await navigator.serviceWorker.ready;
+    await (registration as any).sync.register("sync-todos");
+  }
+
+  const updateTodo = async (updatedTodo: Todo) => {
+    const localStorageTodos =
+      JSON.parse(localStorage.getItem("todos") ?? "[]") || [];
+
+    const index = localStorageTodos.findIndex(
+      (todo: Todo) => todo.id === updatedTodo.id,
     );
-    setTodos(updatedTodos);
-    localStorage.setItem(TODO_KEY, JSON.stringify(updatedTodos));
+
+    if (index !== -1) {
+      localStorageTodos[index] = updatedTodo;
+    } else {
+      localStorageTodos.push(updatedTodo);
+    }
+    localStorage.setItem("todos", JSON.stringify(localStorageTodos));
+
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) => {
+        if (todo.id !== updatedTodo.id) return todo;
+        return updatedTodo;
+      }),
+    );
+
+    await attemptSync();
   };
 
-  const addTodo = (description: string) => {
+  const addTodo = async (description: string) => {
     const newTodo: Todo = {
-      id: Date.now(), // Using the current timestamp as a simple unique ID
+      id: `temp_id_${new Date().getTime()}`,
       description,
       is_completed: false,
     };
-    const updatedTodos = [...todos, newTodo];
-    setTodos(updatedTodos);
-    localStorage.setItem(TODO_KEY, JSON.stringify(updatedTodos));
+    const todos = JSON.parse(localStorage.getItem(TODO_KEY) ?? "[]") || [];
+    todos.push(newTodo);
+    localStorage.setItem(TODO_KEY, JSON.stringify(todos));
+    setTodos((prevTodos) => [...prevTodos, newTodo]);
+
+    await attemptSync();
   };
 
   return (
     <>
       <TodoForm addTodo={addTodo} />
       <ul>
-        {todos.map((todo: Todo) => (
-          <TodoItem key={todo.id} todo={todo} updateTodo={updateTodo} />
+        {todos.map((todo: Todo, idx: number) => (
+          <TodoItem key={todo.id || idx} todo={todo} updateTodo={updateTodo} />
         ))}
       </ul>
     </>
