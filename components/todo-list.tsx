@@ -59,8 +59,8 @@ export function TodoList({ todos, setTodos }: TodoListProps) {
     <>
       <TodoForm addTodo={addTodo} />
       <ul>
-        {todos.map((todo: Todo, idx: number) => (
-          <TodoItem key={todo.id || idx} todo={todo} updateTodo={updateTodo} />
+        {todos.map((todo: Todo) => (
+          <TodoItem key={todo.id} todo={todo} updateTodo={updateTodo} />
         ))}
       </ul>
     </>
